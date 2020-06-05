@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".ui.home.HomeFragment">
+        <!--    tools:context=".DeviceInfo"-->
+
+        <!--    &lt;!&ndash; 若要使用漢堡列，不能少這個 &ndash;&gt;-->
+        <!--    <androidx.appcompat.widget.Toolbar-->
+        <!--        android:id="@+id/toolbar"-->
+        <!--        android:layout_width="match_parent"-->
+        <!--        android:layout_height="?attr/actionBarSize"-->
+        <!--        android:background="?attr/colorPrimary"-->
+        <!--        android:elevation="4dp"-->
+        <!--        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"-->
+        <!--        app:layout_constraintEnd_toEndOf="parent"-->
+        <!--        app:layout_constraintStart_toStartOf="parent"-->
+        <!--        app:layout_constraintTop_toTopOf="parent" />-->
+        <!--    &lt;!&ndash;   comment end     &ndash;&gt;-->
+
+        <ImageView
+            android:id="@+id/profilepic"
+            android:layout_width="75dp"
+            android:layout_height="75dp"
+            android:layout_marginTop="32dp"
+            android:src="@drawable/protobelt"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/user_name"
+            android:layout_width="125dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:gravity="center"
+            android:text="卡茲米"
+            android:textSize="26sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/profilepic" />
+
+        <TextView
+            android:id="@+id/stat_1"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center"
+            android:maxLines="1"
+            android:text="10"
+            android:textColor="#777"
+            android:textSize="22sp"
+            app:layout_constraintEnd_toStartOf="@+id/divider_1"
+            app:layout_constraintTop_toBottomOf="@id/user_name" />
+
+        <TextView
+            android:id="@+id/stat_2"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:gravity="center"
+            android:maxLines="1"
+            android:text="243"
+            android:textColor="#777"
+            android:textSize="22sp"
+            app:layout_constraintStart_toEndOf="@+id/stat_1"
+            app:layout_constraintTop_toTopOf="@id/stat_1" />
+
+        <TextView
+            android:id="@+id/stat_detail_2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:text="平均心跳"
+            android:textColor="#777"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toEndOf="@+id/stat_2"
+            app:layout_constraintStart_toStartOf="@+id/stat_2"
+            app:layout_constraintTop_toBottomOf="@+id/stat_2" />
+
+        <View
+            android:id="@+id/divider_1"
+            android:layout_width="1dp"
+            android:layout_height="0dp"
+            android:background="#ccc"
+            app:layout_constraintBottom_toBottomOf="@+id/stat_detail_2"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/stat_2"
+            app:layout_constraintVertical_bias="0.0" />
+
+        <TextView
+            android:id="@+id/stat_detail_1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="墜落意外"
+            android:textColor="#777"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toEndOf="@+id/stat_1"
+            app:layout_constraintHorizontal_bias="0.516"
+            app:layout_constraintStart_toStartOf="@+id/stat_1"
+            app:layout_constraintTop_toBottomOf="@+id/stat_1" />
+
+        <Button
+            android:id="@+id/btn_notify"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="120dp"
+            android:text="7 秒後傳送通知"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <Button
+            android:id="@+id/btn_newActivity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="測試 Activity"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btn_notify" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+<!--</FrameLayout>-->
