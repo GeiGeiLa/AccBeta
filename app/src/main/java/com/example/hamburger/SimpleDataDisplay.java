@@ -130,9 +130,10 @@ public class SimpleDataDisplay extends AppCompatActivity implements
                     Toast.makeText(getThisContext(), "pref is null", Toast.LENGTH_SHORT).show();
                 }
                 boolean onOff = pref.getBoolean("pref_switch_sendNotify", true);
+                String data = intent.getStringExtra(BluetoothLeService.EXTRA_DATA);
                 if (onOff)
                 {
-                    SenseToBLENotification(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
+                    SenseToBLENotification(data);
                 }
             }
 
