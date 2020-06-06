@@ -229,7 +229,8 @@ public class DeviceControlActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
             case android.R.id.home:
-                onBackPressed();
+                // this caused disconnection when pressing back?
+                //onBackPressed();
                 return true;
         }
         return super.onOptionsItemSelected(item);

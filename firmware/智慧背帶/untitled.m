@@ -1,7 +1,7 @@
 clear all;
-data = readtable('2020-05-04 07:42:55:001_ACC_4727A261.txt', 'Delimiter', ',');
-data2 = readtable('2020-05-04 12:43:39:523_ACC_DC1DB007.txt', 'Delimiter', ',');
-data3 = readtable('2020-05-06 11:48:15:191_ACC_F1D29EF3.txt', 'Delimiter', ',');
+data = readtable('2020-05-04 07_42_55_001_ACC_4727A261.txt', 'Delimiter', ',');
+data2 = readtable('2020-05-04 12_43_39_523_ACC_DC1DB007.txt', 'Delimiter', ',');
+data3 = readtable('2020-05-06 11_48_15_191_ACC_F1D29EF3.txt', 'Delimiter', ',');
 
 
 
@@ -20,6 +20,15 @@ Z_vect3 = data3.Var4 * 4;
 Z_vect1 = Z_vect1(1:750);
 Z_vect2 = Z_vect2(1:750);
 Z_vect3 = Z_vect3(1:375);
+smoothed = Z_vect2;
+
+for i = 1:750:5
+    temp = smoothed(i);
+    for j = 0:5
+        smoothed(i) = temp + smoothed(i+j);
+    end
+end
+    
 
 % t = "";
 % for i=1:375
@@ -67,6 +76,7 @@ title("Z axis raw data (25Hz)")
 ylabel("mg")
 xlabel('point')
 subplot(212);
+
 plot(y);
 title('after lowpass filter')
 ylabel("mg")
@@ -74,25 +84,36 @@ xlabel('point')
 % 
 IndMax = find(diff(sign(diff(y)))<0)+1;
 IndMin = find(diff(sign(diff(y)))>0)+1;
-
+%don't kill previous plot and keep it editable
 hold on
 plot(IndMax, y(IndMax(:)), 'o');
+
+plot(smoothed);
+title('smoothed by 5');
+ylabel("mg");
+xlabel('point');
+subplot(213)
+%what is this for?
 % plot(IndMin, y(IndMin(:)), 'x', 'color', 'black');
 
-IndMax = [0; IndMax];
-threshold = 3;
-addList = [];
-addList = [addList IndMax(2)];
-for i=2:length(IndMax)
-    for j=1:length(IndMin) - 1
-        if IndMin(j) < IndMax(i) && IndMin(j) > IndMax(i-1)
-            if abs(y(IndMin(j)) - y(IndMax(i))) > threshold ...
-                    && abs(y(IndMin(j+1)) - y(IndMax(i))) > threshold
-                addList = [addList IndMax(i)];
-            end
-        end
-    end
-end
+% IndMax = [0; IndMax];
+% threshold = 3;
+% addList = [];
+% addList = [addList IndMax(2)];
+% for i=2:length(IndMax)
+%     for j=1:length(IndMin) - 1
+%         if IndMin(j) < IndMax(i) && IndMin(j) > IndMax(i-1)
+%             if abs(y(IndMin(j)) - y(IndMax(i))) > threshold ...
+%                     && abs(y(IndMin(j+1)) - y(IndMax(i))) > threshold
+%                 addList = [addList IndMax(i)];
+%             end
+%         end
+%     end
+% end
+
+
+
+
 % ans = [];
 % for i=2:length(addList)
 %     disp(y(addList(i)) - min(y(addList(i-1):addList(i))));
