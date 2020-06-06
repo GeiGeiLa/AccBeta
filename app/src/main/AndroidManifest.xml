@@ -2,7 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.hamburger">
-
+    <uses-permission android:name="android.permission.READ_PHONE_NUMBERS"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
@@ -27,7 +28,6 @@
         tools:ignore="GoogleAppIndexingWarning"
         android:screenOrientation="portrait" >
         <activity android:name="com.example.hamburger.SimpleDataDisplay"></activity>
-
 
         <activity android:name=".DummyActivity"
             android:label="DummyActivity"/>

@@ -9,6 +9,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceManager;
 
 import android.Manifest;
 import android.accessibilityservice.FingerprintGestureController;
@@ -16,6 +18,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
@@ -35,6 +38,7 @@ import android.widget.Toast;
 import static java.lang.Math.abs;
 import static java.lang.Math.sqrt;
 
+import com.example.hamburger.ui.home.HomeFragment;
 import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.LineChart;
 
@@ -72,6 +76,7 @@ import com.google.android.material.snackbar.Snackbar;
 
 public class SimpleDataDisplay extends AppCompatActivity implements
         OnChartValueSelectedListener{
+    static boolean notificationSent = false;
     int year, month, day, hour, minute, second;
     int ax, ay, az;
     public static int counter = 0;
@@ -120,7 +125,15 @@ public class SimpleDataDisplay extends AppCompatActivity implements
             if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
                 // TODO: displayData
 //                displayData(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
-                SenseToBLENotification(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
+                SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getThisContext());
+                if (pref == null) {
+                    Toast.makeText(getThisContext(), "pref is null", Toast.LENGTH_SHORT).show();
+                }
+                boolean onOff = pref.getBoolean("pref_switch_sendNotify", true);
+                if (onOff)
+                {
+                    SenseToBLENotification(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
+                }
             }
 
         }
@@ -152,6 +165,7 @@ public class SimpleDataDisplay extends AppCompatActivity implements
         if(data != null)
         {
             Log.i("DATA:", data);
+            HomeFragment.sendNotification("哎呀","你摔倒了？",true,0,this,AskIfFallActivity.class);
 //            Snackbar.make( SimpleDataDisplay.getThisContext()., data, Snackbar.LENGTH_LONG).show();
         }
     }

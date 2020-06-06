@@ -1,6 +1,7 @@
 package com.example.hamburger.ui.home;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -29,6 +30,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -45,7 +48,7 @@ import java.util.ArrayList;
 import static android.content.ContentValues.TAG;
 
 public class HomeFragment extends Fragment {
-    final String CHANNEL_ID = "testNotify";
+    final static String CHANNEL_ID = "testNotify";
     private HomeViewModel homeViewModel;
     Button btn_newActivity;
     public HomeFragment()
@@ -81,7 +84,7 @@ public class HomeFragment extends Fragment {
                 new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        sendNotification("發現您摔倒了","您還好嘛？",true);
+                        sendNotification("發現您摔倒了","您還好嘛？",true, 0, getActivity(),AskIfFallActivity.class);
                         btn_sendNotification.setEnabled(true);
                     }
                 }, sec * 1000);
@@ -91,10 +94,8 @@ public class HomeFragment extends Fragment {
     }
 
 
-    public void sendNotification(String title, String notifyText, boolean useClickAction)
+    public static void sendNotification(String title, String notifyText, boolean useClickAction, int chnnelId, Activity activity, Class targetActivityClass)
     {
-        View v = getView();
-        if(v == null) return;
         NotificationChannel notifyChannel = new NotificationChannel(
                 CHANNEL_ID,"channelName", NotificationManager.IMPORTANCE_HIGH);
         notifyChannel.setDescription("摔倒通知");
@@ -103,10 +104,10 @@ public class HomeFragment extends Fragment {
         notifyChannel.enableVibration(true);
         notifyChannel.setVibrationPattern(new long[]{1000,1000,1000,1000});
 
-        NotificationManager notificationManager = getActivity().getSystemService(NotificationManager.class);
+        NotificationManager notificationManager = activity.getSystemService(NotificationManager.class);
         notificationManager.createNotificationChannel(notifyChannel);
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(v.getContext(), CHANNEL_ID)
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(activity, CHANNEL_ID)
                 .setSmallIcon(R.drawable.protobelt)
                 .setContentTitle(title)
                 .setContentText(notifyText)
@@ -115,7 +116,7 @@ public class HomeFragment extends Fragment {
                 .setDefaults(Notification.DEFAULT_ALL);
         if(useClickAction)
         {
-            PendingIntent pendingIntent = PendingIntent.getActivity(this.getContext(), 1, new Intent(this.getActivity(), AskIfFallActivity.class),0);
+            PendingIntent pendingIntent = PendingIntent.getActivity(activity, 1, new Intent(activity, targetActivityClass),0);
             builder.setContentIntent(pendingIntent)
                     .setAutoCancel(true);
         }

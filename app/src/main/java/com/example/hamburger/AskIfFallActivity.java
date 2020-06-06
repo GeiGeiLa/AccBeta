@@ -19,8 +19,10 @@ import android.widget.Button;
 import android.widget.ExpandableListAdapter;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceManager;
 
@@ -67,66 +69,68 @@ public class AskIfFallActivity extends AppCompatActivity {
                     {
                         throw new Exception("Sim is not available");
                     }
-                    String SENT = "SMS_SENT";
-                    String DELIVERED = "SMS_DELIVERED";
+//                    String SENT = "SMS_SENT";
+//                    String DELIVERED = "SMS_DELIVERED";
+//
+//                    PendingIntent sentPI = PendingIntent.getBroadcast(AskIfFallActivity.this, 0,
+//                            new Intent(SENT), 0);
+//
+//                    PendingIntent deliveredPI = PendingIntent.getBroadcast(AskIfFallActivity.this,
+//                            0, new Intent(DELIVERED), 0);
 
-                    PendingIntent sentPI = PendingIntent.getBroadcast(AskIfFallActivity.this, 0,
-                            new Intent(SENT), 0);
-
-                    PendingIntent deliveredPI = PendingIntent.getBroadcast(AskIfFallActivity.this,
-                            0, new Intent(DELIVERED), 0);
-
-                    // ---when the SMS has been sent---
-                    final String string = "deprecation";
-                    registerReceiver(new BroadcastReceiver() {
-
-                        @Override
-                        public void onReceive(Context arg0, Intent arg1) {
-                            switch (getResultCode()) {
-                                case Activity.RESULT_OK:
-                                    Toast.makeText(AskIfFallActivity.this, "SMS sent",
-                                            Toast.LENGTH_SHORT).show();
-                                    break;
-                                case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
-                                    Toast.makeText(AskIfFallActivity.this, "Generic failure",
-                                            Toast.LENGTH_SHORT).show();
-                                    break;
-                                case SmsManager.RESULT_ERROR_NO_SERVICE:
-                                    Toast.makeText(AskIfFallActivity.this, "No service",
-                                            Toast.LENGTH_SHORT).show();
-                                    break;
-                                case SmsManager.RESULT_ERROR_NULL_PDU:
-                                    Toast.makeText(AskIfFallActivity.this, "Null PDU",
-                                            Toast.LENGTH_SHORT).show();
-                                    break;
-                                case SmsManager.RESULT_ERROR_RADIO_OFF:
-                                    Toast.makeText(getBaseContext(), "Radio off",
-                                            Toast.LENGTH_SHORT).show();
-                                    break;
-
-                            }
-                        }
-                    }, new IntentFilter(SENT));
-
-                    // ---when the SMS has been delivered---
-                    registerReceiver(new BroadcastReceiver() {
-                        @Override
-                        public void onReceive(Context arg0, Intent arg1) {
-                            switch (getResultCode()) {
-                                case Activity.RESULT_OK:
-                                    Toast.makeText(AskIfFallActivity.this, "SMS delivered",
-                                            Toast.LENGTH_SHORT).show();
-                                    break;
-                                case Activity.RESULT_CANCELED:
-                                    Toast.makeText(AskIfFallActivity.this, "SMS not delivered",
-                                            Toast.LENGTH_SHORT).show();
-                                    break;
-                            }
-                        }
-                    }, new IntentFilter(DELIVERED));
+//                    // ---when the SMS has been sent---
+//                    final String string = "deprecation";
+//                    registerReceiver(new BroadcastReceiver() {
+//
+//                        @Override
+//                        public void onReceive(Context arg0, Intent arg1) {
+//                            switch (getResultCode()) {
+//                                case Activity.RESULT_OK:
+//                                    Toast.makeText(AskIfFallActivity.this, "SMS sent",
+//                                            Toast.LENGTH_SHORT).show();
+//                                    break;
+//                                case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
+//                                    Toast.makeText(AskIfFallActivity.this, "Generic failure",
+//                                            Toast.LENGTH_SHORT).show();
+//                                    break;
+//                                case SmsManager.RESULT_ERROR_NO_SERVICE:
+//                                    Toast.makeText(AskIfFallActivity.this, "No service",
+//                                            Toast.LENGTH_SHORT).show();
+//                                    break;
+//                                case SmsManager.RESULT_ERROR_NULL_PDU:
+//                                    Toast.makeText(AskIfFallActivity.this, "Null PDU",
+//                                            Toast.LENGTH_SHORT).show();
+//                                    break;
+//                                case SmsManager.RESULT_ERROR_RADIO_OFF:
+//                                    Toast.makeText(getBaseContext(), "Radio off",
+//                                            Toast.LENGTH_SHORT).show();
+//                                    break;
+//
+//                            }
+//                        }
+//                    }, new IntentFilter(SENT));
+//
+//                    // ---when the SMS has been delivered---
+//                    registerReceiver(new BroadcastReceiver() {
+//                        @Override
+//                        public void onReceive(Context arg0, Intent arg1) {
+//                            switch (getResultCode()) {
+//                                case Activity.RESULT_OK:
+//                                    Toast.makeText(AskIfFallActivity.this, "SMS delivered",
+//                                            Toast.LENGTH_SHORT).show();
+//                                    break;
+//                                case Activity.RESULT_CANCELED:
+//                                    Toast.makeText(AskIfFallActivity.this, "SMS not delivered",
+//                                            Toast.LENGTH_SHORT).show();
+//                                    break;
+//                            }
+//                        }
+//                    }, new IntentFilter(DELIVERED));
 
                     SmsManager smsManager = SmsManager.getDefault();
-                    smsManager.sendTextMessage(phoneNo, null, "老爸老媽好！", sentPI, deliveredPI);
+                    smsManager.sendTextMessage(phoneNo, null, "老爸老媽好！", null, null);
+//                    smsManager.sendTextMessage(phoneNo, null, "老爸老媽好！", sentPI, deliveredPI);
+
                     Snackbar.make(v,"以季送通知！",Snackbar.LENGTH_LONG).show();
                 }
                 catch (Exception e)
@@ -134,6 +138,7 @@ public class AskIfFallActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "沒有插入 SIM 卡！",
                             Toast.LENGTH_LONG).show();
                     e.printStackTrace();
+
                 }
 
 
@@ -145,16 +150,17 @@ public class AskIfFallActivity extends AppCompatActivity {
         return AskIfFallActivity.currentContext;
     }
 
-    public void DisplayDiaglog()
+    public static void DisplayDiaglog(@NonNull Context context, String title, String message, String ok, String cancel)
     {
-        new AlertDialog.Builder(AskIfFallActivity.this)
-                .setTitle("一個Dialog")
-                .setPositiveButton("ok", new DialogInterface.OnClickListener() {
+        new AlertDialog.Builder(context)
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton(ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
                     }
-                }).setNegativeButton("cancel",null).create()
+                }).setNegativeButton(cancel,null).create()
                 .show();
     }
 
