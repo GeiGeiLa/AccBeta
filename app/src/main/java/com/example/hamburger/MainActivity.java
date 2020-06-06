@@ -325,9 +325,7 @@ public class MainActivity extends AppCompatActivity {
                         mScanning = false;
                     }
                     Log.d(TAG,"Starting");
-                    //
-
-
+                    // OLD START ACTIVITY
 
                     startActivity(intent);
                 }
