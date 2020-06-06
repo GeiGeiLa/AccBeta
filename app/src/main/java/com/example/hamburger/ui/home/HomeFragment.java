@@ -12,6 +12,7 @@ import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -98,7 +99,7 @@ public class HomeFragment extends Fragment {
     {
         NotificationChannel notifyChannel = new NotificationChannel(
                 CHANNEL_ID,"channelName", NotificationManager.IMPORTANCE_HIGH);
-        notifyChannel.setDescription("摔倒通知");
+        notifyChannel.setDescription("ACC 通知");
         notifyChannel.enableLights(true);
         notifyChannel.setLightColor(Color.RED);
         notifyChannel.enableVibration(true);
@@ -114,7 +115,7 @@ public class HomeFragment extends Fragment {
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setDefaults(Notification.DEFAULT_ALL);
-        if(useClickAction)
+        if(useClickAction && activity != null && targetActivityClass != null)
         {
             PendingIntent pendingIntent = PendingIntent.getActivity(activity, 1, new Intent(activity, targetActivityClass),0);
             builder.setContentIntent(pendingIntent)

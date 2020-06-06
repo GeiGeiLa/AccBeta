@@ -150,7 +150,7 @@ public class AskIfFallActivity extends AppCompatActivity {
         return AskIfFallActivity.currentContext;
     }
 
-    public static void DisplayDiaglog(@NonNull Context context, String title, String message, String ok, String cancel)
+    public static void displayDialog(@NonNull Context context, String title, String message, String ok, String cancel)
     {
         new AlertDialog.Builder(context)
                 .setTitle(title)
@@ -160,7 +160,7 @@ public class AskIfFallActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
 
                     }
-                }).setNegativeButton(cancel,null).create()
+                })
                 .show();
     }
 

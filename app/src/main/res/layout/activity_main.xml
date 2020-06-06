@@ -7,9 +7,10 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     tools:openDrawer="start">
-    <!-- Navigation Page 的容器在這裡 -->
+    <!-- Navigation Page 的容器在這裡  一定要設 id 才會方便在任何地方使用 view 當參數-->
     <include
         layout="@layout/app_bar_main"
+        android:id="@+id/content"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
     <!-- END Navigation Page 的容器在這裡 -->

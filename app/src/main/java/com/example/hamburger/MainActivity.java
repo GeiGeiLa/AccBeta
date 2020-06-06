@@ -44,8 +44,6 @@ import com.google.android.material.navigation.NavigationView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.fragment.app.Fragment;
@@ -76,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String DEVICE_ADDRESS = "ED:43:7E:75:73:4B";
     public static boolean bleserviceValid = false;
     private Toolbar toolbar;
-    
+    private static View currentView;
     
     ///
     private ExpandableListView mGattServicesList;
@@ -85,6 +83,18 @@ public class MainActivity extends AppCompatActivity {
     
     ///
     // 特地為drawer的設定按鈕做出點擊事件
+    public View getCurrentView()
+    {
+        return getWindow().getDecorView();
+    }
+    public static View retrieveCurrentView()
+    {
+        return currentView;
+    }
+    public static void setupCurrentView(View v)
+    {
+        currentView = v;
+    }
     private void setOnClickForNavBar()
     {
         toolbar = findViewById(R.id.toolbar);
@@ -170,6 +180,7 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                MainActivity.setupCurrentView(view);
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
                 InitializeScanner();
@@ -328,7 +339,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
-            Log.e("DIS","disconntected");
+            Log.e("DIS","disconnected");
             mBluetoothLeService = null;
         }
     };
@@ -444,7 +455,6 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 viewHolder = (ViewHolder) view.getTag();
             }
-
             BluetoothDevice device = mLeDevices.get(i);
             final String deviceName = device.getName();
             if (deviceName != null && deviceName.length() > 0)
@@ -452,7 +462,6 @@ public class MainActivity extends AppCompatActivity {
             else
                 viewHolder.deviceName.setText(R.string.unknown_device);
             viewHolder.deviceAddress.setText(device.getAddress());
-
             return view;
         }
     }
@@ -465,9 +474,9 @@ public class MainActivity extends AppCompatActivity {
         mGattServicesList.setAdapter((SimpleExpandableListAdapter) null);
     }
 
-    private void displayGattServices(List<BluetoothGattService> gattServices)
+    private boolean displayGattServices(List<BluetoothGattService> gattServices, Context context)
     {
-        if (gattServices == null) return;
+        if (gattServices == null) return false;
         String uuid = null;
         String unknownServiceString = getResources().getString(R.string.unknown_service);
         String unknownCharaString = getResources().getString(R.string.unknown_characteristic);
@@ -513,7 +522,8 @@ public class MainActivity extends AppCompatActivity {
                 mGattCharacteristics.get(2).get(0);
         final int charaProp = characteristic.getProperties();
 
-        if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
+        if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0)
+        {
             Log.d(TAG, "Katsmin:Notification opened");
             mNotifyCharacteristic = characteristic;
             mBluetoothLeService.setCharacteristicNotification(
@@ -535,16 +545,21 @@ public class MainActivity extends AppCompatActivity {
             Log.e("NULL","mgslist");
         }
         mGattServicesList.setAdapter(gattServiceAdapter);
+        return true;
     }
     private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+
             final String action = intent.getAction();
             if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
                 mConnected = true;
                 invalidateOptionsMenu();
             } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
                 mConnected = false;
+                HomeFragment.sendNotification("您已斷線","點這裡來重新連線",true,2,MainActivity.this,MainActivity.class);
+                InitializeScanner();
+                Snackbar.make(findViewById(R.id.content),"唉呀！你和工作帶失去連線了！",Snackbar.LENGTH_LONG);
                 invalidateOptionsMenu();
                 clearUI();
             }
@@ -557,8 +572,15 @@ public class MainActivity extends AppCompatActivity {
                     if (bgs.getUuid().toString().equals(TARGET_SERVICE_UUID)) {
                     }
                 }
-                displayGattServices(gservices);
-            } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
+
+                boolean success = displayGattServices(gservices, context);
+                if(success)
+                {
+                    Snackbar.make(findViewById(R.id.content), "已經成功連線",Snackbar.LENGTH_LONG).show();
+                }
+
+            }
+            else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
                 // TODO: displayData
 //                displayData(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
                 SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
@@ -602,9 +624,6 @@ public class MainActivity extends AppCompatActivity {
             Log.e("NULL","CAUGHT NULL BLE");
             InitializeScanner();
         }
-
-
-
     }
 
     @Override
@@ -635,5 +654,11 @@ public class MainActivity extends AppCompatActivity {
         intentFilter.addAction(BluetoothLeService.ACTION_DATA_AVAILABLE);
         return intentFilter;
     }
+    @Override
+    public void onBackPressed()
+    {
 
+        AskIfFallActivity.displayDialog(this, "請勿關閉此程式","若您確定要與工作帶斷線，請在多工處理把此程式滑掉。"," 好","繼續使用");
+
+    }
 }

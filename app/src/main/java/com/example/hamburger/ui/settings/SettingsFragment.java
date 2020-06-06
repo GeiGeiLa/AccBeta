@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -14,6 +16,9 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.FragmentManager;
 import androidx.preference.EditTextPreference;
 import androidx.preference.PreferenceFragmentCompat;
 
@@ -34,6 +39,7 @@ import com.example.hamburger.DummyActivity;
 import com.example.hamburger.MainActivity;
 import com.example.hamburger.MyAdapter;
 import com.example.hamburger.R;
+import com.example.hamburger.ui.home.HomeFragment;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
@@ -71,7 +77,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
                 if(newno.length() != 10 || !legal )
                 {
                     Log.e("Wrong value0","phoneno");
-                    AskIfFallActivity.DisplayDiaglog(getContext(),"電話號碼格式錯誤","已還原成剛剛的號碼","OK","Close");
+                    AskIfFallActivity.displayDialog(getContext(),"電話號碼格式錯誤","已還原成剛剛的號碼","OK","Close");
                     return false;
                 }
                 pref_phoneno.setText(newno);
