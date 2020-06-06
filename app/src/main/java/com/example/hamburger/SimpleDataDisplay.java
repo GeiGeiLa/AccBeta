@@ -113,6 +113,13 @@ public class SimpleDataDisplay extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        try {
+            unregisterReceiver(mGattUpdateReceiver);
+        }
+        catch(Exception ex)
+        {
+
+        }
         registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
     }
     private static IntentFilter makeGattUpdateIntentFilter() {
