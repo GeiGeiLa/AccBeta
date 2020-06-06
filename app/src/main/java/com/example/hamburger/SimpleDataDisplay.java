@@ -5,6 +5,7 @@ package com.example.hamburger;
  * @author 許劼忞
  */
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -26,6 +27,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -65,6 +67,7 @@ import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.github.mikephil.charting.components.MarkerView;
 //import com.github.mikephil.charting.components.
 import com.github.mikephil.charting.utils.Utils;
+import com.google.android.material.snackbar.Snackbar;
 
 
 public class SimpleDataDisplay extends AppCompatActivity implements
@@ -72,6 +75,7 @@ public class SimpleDataDisplay extends AppCompatActivity implements
     int year, month, day, hour, minute, second;
     int ax, ay, az;
     public static int counter = 0;
+    private static Context context;
     public static int ccc=  0;
     List<Integer> AX = new ArrayList<Integer>();
     List<Integer> AY = new ArrayList<Integer>();
@@ -79,11 +83,16 @@ public class SimpleDataDisplay extends AppCompatActivity implements
     TextView tv_data;
     Calendar calendar;
     LineChart chart;
+    public static Context getThisContext()
+    {
+        return context;
+    }
     private final int X_ANIMATION_PERIOD = 750;
     private final int WINDOW_SIZE = 125;
     private final int DEVICE_FREQUENCY = 25;
     private final int REFRESH_PERIOD = WINDOW_SIZE / DEVICE_FREQUENCY;
     private final int OFFSET = -955;
+
     private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -110,8 +119,10 @@ public class SimpleDataDisplay extends AppCompatActivity implements
 //            else
             if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
                 // TODO: displayData
-                displayData(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
+//                displayData(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
+                SenseToBLENotification(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
             }
+
         }
     };
 
@@ -135,6 +146,14 @@ public class SimpleDataDisplay extends AppCompatActivity implements
             }
         }
         return -1;
+    }
+    public void SenseToBLENotification(String data)
+    {
+        if(data != null)
+        {
+            Log.i("DATA:", data);
+//            Snackbar.make( SimpleDataDisplay.getThisContext()., data, Snackbar.LENGTH_LONG).show();
+        }
     }
     // 解析data
     private void displayData(String data) {
@@ -212,7 +231,7 @@ public class SimpleDataDisplay extends AppCompatActivity implements
         setContentView(R.layout.activity_simple_data_display);
         tv_data = findViewById(R.id.tv_notification);
         setTitle("過去"+REFRESH_PERIOD+"秒的結果");
-
+        SimpleDataDisplay.context = getApplicationContext();
         Log.e("", "Into line chart");
         {   // // Chart Style // //
             chart = findViewById(R.id.mLineChart);

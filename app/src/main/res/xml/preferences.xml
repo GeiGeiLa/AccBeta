@@ -10,12 +10,18 @@
         android:title="推送至系統通知"
         android:key="pref_switch_sendNotify"
         android:summary="關閉 : 只會進行紀錄的行為，不推送通知" />
-
+        <EditTextPreference
+            android:defaultValue="ACC_7E75734B"
+            android:key="pref_deviceName"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="設定 ACC ID"
+            android:summary="通常以 ACC 開頭，測試用的是 ACC_7E75734B"/>
     </PreferenceCategory>
     <PreferenceCategory
         android:title="個人資訊">
         <EditTextPreference
-            android:defaultValue="Default value"
+            android:defaultValue="@string/default_contact_number"
             android:key="pref_text_yourContact"
             android:selectAllOnFocus="true"
             android:singleLine="true"

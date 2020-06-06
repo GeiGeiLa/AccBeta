@@ -10,6 +10,7 @@ import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -47,6 +48,7 @@ import androidx.navigation.ui.NavigationUI;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.preference.PreferenceManager;
 
 import java.util.ArrayList;
 
@@ -138,6 +140,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         FloatingActionButton fab = findViewById(R.id.fab);
@@ -186,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
     {
         String[] permissions = {Manifest.permission.BLUETOOTH,Manifest.permission.BLUETOOTH_ADMIN,
                 Manifest.permission.ACCESS_COARSE_LOCATION,Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE};
+                Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.SEND_SMS};
         for(String permission:permissions)
         {
 
@@ -207,25 +210,6 @@ public class MainActivity extends AppCompatActivity {
     Handler mHandler;
     boolean mScanning;
 
-    /**
-     * 列舉裝置
-     * @param device
-     */
-    void findDevice(BluetoothDevice device)
-    {
-        if(device.getName() != null)
-        {
-            //if(true)
-            if(device.getName().startsWith("ACC"))
-            {
-                mBluetoothAdapter.stopLeScan(mLeScanCallback);
-                final Intent intent = new Intent(this, DeviceControlActivity.class);
-                intent.putExtra(DeviceControlActivity.EXTRAS_DEVICE_NAME, device.getName());
-                intent.putExtra(DeviceControlActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
-                startActivity(intent);
-            }
-        }
-    }
     BluetoothManager bluetoothManager;
 
     private BluetoothAdapter.LeScanCallback mLeScanCallback =
@@ -265,7 +249,7 @@ public class MainActivity extends AppCompatActivity {
                     mBluetoothAdapter.stopLeScan(mLeScanCallback);
                     invalidateOptionsMenu();
                 }
-            }, 1000);
+            }, 10000);
 
             mScanning = true;
             if(mBluetoothAdapter == null)
@@ -282,12 +266,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Adapter for holding devices found through scanning.
+// Adapter for holding devices found through scanning.
     private class LeDeviceListAdapter extends BaseAdapter {
         private ArrayList<BluetoothDevice> mLeDevices;
         private LayoutInflater mInflator;
         public LeDeviceListAdapter() {
             super();
             mLeDevices = new ArrayList<BluetoothDevice>();
+            mInflator = MainActivity.this.getLayoutInflater();
         }
         // Device scan callback.
         private BluetoothAdapter.LeScanCallback mLeScanCallback =
@@ -295,7 +281,8 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
-                        runOnUiThread(new Runnable() {
+                        // edited
+                        MainActivity.this.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 mLeDeviceListAdapter.addDevice(device);
@@ -310,13 +297,21 @@ public class MainActivity extends AppCompatActivity {
             if(device.getName() != null )
             {
                 bluetoothLeScanner = mBluetoothAdapter.getBluetoothLeScanner();
-                if(!mLeDevices.contains(device))
-//                if(device.getName().startsWith("ACC") && !mLeDevices.contains(device))
+                String deviceName = device.getName();
+                SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+                if(pref == null)
                 {
+                    Toast.makeText(MainActivity.this, "pref is null",Toast.LENGTH_SHORT).show();
+                }
+                String deviceId = pref.getString("pref_deviceName", "");
+                Log.i("deviceId:",deviceId);
+                if(deviceName.startsWith(deviceId) && !mLeDevices.contains(device)) {
+
+                    Log.i("DEVICE NAME:",device.getName());
                     mLeDevices.add(device);
-//                    // 下面是直接進入ACC
                     mScanning = false;
                     mBluetoothAdapter.stopLeScan(mLeScanCallback);
+                    // edited
                     final Intent intent = new Intent(MainActivity.this, DeviceControlActivity.class);
                     intent.putExtra(DeviceControlActivity.EXTRAS_DEVICE_NAME, device.getName());
                     intent.putExtra(DeviceControlActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
@@ -355,16 +350,16 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public View getView(int i, View view, ViewGroup viewGroup) {
-            HomeFragment.ViewHolder viewHolder;
+            ViewHolder viewHolder;
             // General ListView optimization code.
             if (view == null) {
                 view = mInflator.inflate(R.layout.listitem_device, null);
-                viewHolder = new HomeFragment.ViewHolder();
+                viewHolder = new ViewHolder();
                 viewHolder.deviceAddress = (TextView) view.findViewById(R.id.device_address);
                 viewHolder.deviceName = (TextView) view.findViewById(R.id.device_name);
                 view.setTag(viewHolder);
             } else {
-                viewHolder = (HomeFragment.ViewHolder) view.getTag();
+                viewHolder = (ViewHolder) view.getTag();
             }
 
             BluetoothDevice device = mLeDevices.get(i);
@@ -379,11 +374,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
-
-    static class ViewHolder {
-        TextView deviceName;
-        TextView deviceAddress;
+    public static class ViewHolder {
+        public TextView deviceName;
+        public TextView deviceAddress;
     }
-
 }
