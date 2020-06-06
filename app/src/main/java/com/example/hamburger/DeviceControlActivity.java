@@ -166,7 +166,6 @@ public class DeviceControlActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.gatt_services_characteristics);
         Log.e("", "Info devctrl");
-        final Intent intent = getIntent();
         mDeviceAddress = DEVICE_ADDRESS;
 
         // Sets up UI references.
@@ -174,9 +173,6 @@ public class DeviceControlActivity extends AppCompatActivity {
         mGattServicesList = (ExpandableListView) findViewById(R.id.gatt_services_list);
         mGattServicesList.setOnChildClickListener(servicesListClickListner);
 
-
-        getSupportActionBar().setTitle("ACC");
-//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         Intent gattServiceIntent = new Intent(getBaseContext(), BluetoothLeService.class);
         Log.e("", "will try to bind");
         boolean bindresult;
@@ -215,15 +211,7 @@ public class DeviceControlActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-//        getMenuInflater().inflate(R.menu.gatt_services, menu);
-//        // Katsmin: Auto connect here
-//        if (mConnected) {
-//            menu.findItem(R.id.menu_connect).setVisible(false);
-//            menu.findItem(R.id.menu_disconnect).setVisible(true);
-//        } else {
-//            menu.findItem(R.id.menu_connect).setVisible(true);
-//            menu.findItem(R.id.menu_disconnect).setVisible(false);
-//        }
+
         return true;
     }
 
@@ -241,7 +229,8 @@ public class DeviceControlActivity extends AppCompatActivity {
     // Demonstrates how to iterate through the supported GATT Services/Characteristics.
     // In this sample, we populate the data structure that is bound to the ExpandableListView
     // on the UI.
-    private void displayGattServices(List<BluetoothGattService> gattServices) {
+    private void displayGattServices(List<BluetoothGattService> gattServices)
+    {
         if (gattServices == null) return;
         String uuid = null;
         String unknownServiceString = getResources().getString(R.string.unknown_service);
