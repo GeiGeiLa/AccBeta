@@ -27,9 +27,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+
 public class DeviceControlActivity extends AppCompatActivity {
     private final static String TAG = DeviceControlActivity.class.getSimpleName();
-
+    public final static String TARGET_SERVICE_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
+    public final static String TARGET_CHAR_UUID = "6e400003-b5a3-f393-e0a9-e50e24dcca9e";
     public static final String EXTRAS_DEVICE_NAME = "DEVICE_NAME";
     public static final String EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS";
 
@@ -39,7 +41,8 @@ public class DeviceControlActivity extends AppCompatActivity {
     private String mDeviceAddress;
     private ExpandableListView mGattServicesList;
     private BluetoothLeService mBluetoothLeService;
-    private IBinder mService = null;
+    BluetoothGattService mService = null;
+
     private ArrayList<ArrayList<BluetoothGattCharacteristic>> mGattCharacteristics =
             new ArrayList<ArrayList<BluetoothGattCharacteristic>>();
     private boolean mConnected = false;
@@ -52,16 +55,17 @@ public class DeviceControlActivity extends AppCompatActivity {
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder service) {
-            Log.e("","Service connected");
+            Log.e("SERVICE","Android service connected");
             // TODO: assign value to mBluetoothLeService
+            // here
             mBluetoothLeService = ((BluetoothLeService.LocalBinder) service).getService();
-
             if (!mBluetoothLeService.initialize()) {
                 Log.e(TAG, "Unable to initialize Bluetooth");
                 finish();
             }
             // Automatically connects to the device upon successful start-up initialization.
 
+            // here
             // FIXME: new Katsmin
             if(!mConnected)
             {
@@ -79,7 +83,6 @@ public class DeviceControlActivity extends AppCompatActivity {
             else
             {
                 Log.e("","assert connected");
-
             }
         }
 
@@ -104,10 +107,15 @@ public class DeviceControlActivity extends AppCompatActivity {
                 clearUI();
             } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
                 // Show all the supported services and characteristics on the user interface.
+                // here
                 List<BluetoothGattService> gservices = mBluetoothLeService.getSupportedGattServices();
-                for(BluetoothGattService gs: gservices)
+                // here
+                for(BluetoothGattService bgs: gservices)
                 {
-                    Log.d(TAG,"gs:"+gs.getUuid().toString());
+                    if(bgs.getUuid().toString() == TARGET_SERVICE_UUID)
+                    {
+                        mService = bgs;
+                    }
                 }
                 displayGattServices(gservices);
 
@@ -123,6 +131,7 @@ public class DeviceControlActivity extends AppCompatActivity {
     // demonstrates 'Read' and 'Notify' features.  See
     // http://d.android.com/reference/android/bluetooth/BluetoothGatt.html for the complete
     // list of supported characteristic features.
+
     private final ExpandableListView.OnChildClickListener servicesListClickListner =
             new ExpandableListView.OnChildClickListener() {
                 @Override
@@ -133,25 +142,27 @@ public class DeviceControlActivity extends AppCompatActivity {
                         final BluetoothGattCharacteristic characteristic =
                                 mGattCharacteristics.get(groupPosition).get(childPosition);
                         final int charaProp = characteristic.getProperties();
-                        if ((charaProp | BluetoothGattCharacteristic.PROPERTY_READ) > 0) {
-                            // If there is an active notification on a characteristic, clear
-                            // it first so it doesn't update the data field on the user interface.
-                            if (mNotifyCharacteristic != null) {
-                                mBluetoothLeService.setCharacteristicNotification(
-                                        mNotifyCharacteristic, false);
-                                mNotifyCharacteristic = null;
-                            }
-                            mBluetoothLeService.readCharacteristic(characteristic);
-                        }
+                        // might be useful
+//                        if ((charaProp | BluetoothGattCharacteristic.PROPERTY_READ) > 0) {
+//                            // If there is an active notification on a characteristic, clear
+//                            // it first so it doesn't update the data field on the user interface.
+//                            if (mNotifyCharacteristic != null) {
+//                                mBluetoothLeService.setCharacteristicNotification(
+//                                        mNotifyCharacteristic, false);
+//                                mNotifyCharacteristic = null;
+//                            }
+//                            mBluetoothLeService.readCharacteristic(characteristic);
+//                        }
                         if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
                             Log.d(TAG,"Katsmin:Notification opened");
                             mNotifyCharacteristic = characteristic;
                             mBluetoothLeService.setCharacteristicNotification(
-                                    characteristic, true);
+                                    mNotifyCharacteristic, true);
                             Intent intent = new Intent();
                             intent.setClass(DeviceControlActivity.this, SimpleDataDisplay.class);
                             startActivity(intent);
                         }
+                        // end
                         return true;
                     }
                     return false;
@@ -179,6 +190,7 @@ public class DeviceControlActivity extends AppCompatActivity {
         mConnectionState = (TextView) findViewById(R.id.connection_state);
         mDataField = (TextView) findViewById(R.id.data_value);
 
+
         getSupportActionBar().setTitle("ACC");
 //        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         Intent gattServiceIntent = new Intent(getBaseContext(), BluetoothLeService.class);
@@ -192,6 +204,13 @@ public class DeviceControlActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        try {
+            unregisterReceiver(mGattUpdateReceiver);
+        }
+        catch(Exception ex)
+        {
+
+        }
         registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
         if (mBluetoothLeService != null) {
             final boolean result = mBluetoothLeService.connect(mDeviceAddress);
@@ -265,9 +284,11 @@ public class DeviceControlActivity extends AppCompatActivity {
         mGattCharacteristics = new ArrayList<ArrayList<BluetoothGattCharacteristic>>();
 
         // Loops through available GATT Services.
-        for (BluetoothGattService gattService : gattServices) {
+        for (BluetoothGattService gattService : gattServices)
+        {
             HashMap<String, String> currentServiceData = new HashMap<String, String>();
             uuid = gattService.getUuid().toString();
+            Log.e("UUID:",uuid);
             currentServiceData.put(
                     LIST_NAME, GattAttributes.lookup(uuid, unknownServiceString));
             currentServiceData.put(LIST_UUID, uuid);
@@ -282,18 +303,44 @@ public class DeviceControlActivity extends AppCompatActivity {
 
             // Loops through available Characteristics.
             for (BluetoothGattCharacteristic gattCharacteristic : gattCharacteristics) {
-                charas.add(gattCharacteristic);
-                HashMap<String, String> currentCharaData = new HashMap<String, String>();
-                uuid = gattCharacteristic.getUuid().toString();
-                currentCharaData.put(
-                        LIST_NAME, GattAttributes.lookup(uuid, unknownCharaString));
-                currentCharaData.put(LIST_UUID, uuid);
-                gattCharacteristicGroupData.add(currentCharaData);
+                if(gattCharacteristic.getUuid().toString().equals(TARGET_CHAR_UUID))
+                {
+                    charas.add(gattCharacteristic);
+                    HashMap<String, String> currentCharaData = new HashMap<String, String>();
+                    uuid = gattCharacteristic.getUuid().toString();
+                    Log.e("CHAR UUID:",uuid);
+                    currentCharaData.put(
+                            LIST_NAME, GattAttributes.lookup(uuid, unknownCharaString));
+                    currentCharaData.put(LIST_UUID, uuid);
+                    gattCharacteristicGroupData.add(currentCharaData);
+                }
             }
             mGattCharacteristics.add(charas);
             gattCharacteristicData.add(gattCharacteristicGroupData);
         }
-
+        final BluetoothGattCharacteristic characteristic =
+                mGattCharacteristics.get(2).get(0);
+        final int charaProp = characteristic.getProperties();
+        // might be useful
+//                        if ((charaProp | BluetoothGattCharacteristic.PROPERTY_READ) > 0) {
+//                            // If there is an active notification on a characteristic, clear
+//                            // it first so it doesn't update the data field on the user interface.
+//                            if (mNotifyCharacteristic != null) {
+//                                mBluetoothLeService.setCharacteristicNotification(
+//                                        mNotifyCharacteristic, false);
+//                                mNotifyCharacteristic = null;
+//                            }
+//                            mBluetoothLeService.readCharacteristic(characteristic);
+//                        }
+        if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
+            Log.d(TAG, "Katsmin:Notification opened");
+            mNotifyCharacteristic = characteristic;
+            mBluetoothLeService.setCharacteristicNotification(
+                    mNotifyCharacteristic, true);
+            Intent intent = new Intent();
+            intent.setClass(DeviceControlActivity.this, SimpleDataDisplay.class);
+            startActivity(intent);
+        }
         SimpleExpandableListAdapter gattServiceAdapter = new SimpleExpandableListAdapter(
                 this,
                 gattServiceData,
@@ -306,6 +353,7 @@ public class DeviceControlActivity extends AppCompatActivity {
                 new int[] { android.R.id.text1, android.R.id.text2 }
         );
         mGattServicesList.setAdapter(gattServiceAdapter);
+
     }
 
     private static IntentFilter makeGattUpdateIntentFilter() {

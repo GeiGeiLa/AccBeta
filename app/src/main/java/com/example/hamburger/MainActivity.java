@@ -61,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
     private AppBarConfiguration mAppBarConfiguration;
     private DrawerLayout drawerLayout; // for settings new activity
     private NavigationView navigation_view; // for settings new activity
+
     private Toolbar toolbar;
     // 特地為drawer的設定按鈕做出點擊事件
     private void setOnClickForNavBar()
@@ -116,7 +117,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
+    private String mDeviceName, mDeviceId, mDeviceAddress;
+    private String mService, mCharacteristic;
     void InitializeScanner()
     {
         askForPermission();
@@ -149,6 +151,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+                InitializeScanner();
             }
         });
         drawerLayout = findViewById(R.id.drawer_layout);
@@ -313,13 +316,19 @@ public class MainActivity extends AppCompatActivity {
                     mBluetoothAdapter.stopLeScan(mLeScanCallback);
                     // edited
                     final Intent intent = new Intent(MainActivity.this, DeviceControlActivity.class);
-                    intent.putExtra(DeviceControlActivity.EXTRAS_DEVICE_NAME, device.getName());
-                    intent.putExtra(DeviceControlActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
+                    mDeviceName = device.getName();
+                    mDeviceAddress = device.getAddress();
+                    intent.putExtra(DeviceControlActivity.EXTRAS_DEVICE_NAME, mDeviceName);
+                    intent.putExtra(DeviceControlActivity.EXTRAS_DEVICE_ADDRESS, mDeviceAddress);
                     if (mScanning) {
                         mBluetoothAdapter.stopLeScan(mLeScanCallback);
                         mScanning = false;
                     }
                     Log.d(TAG,"Starting");
+                    //
+
+
+
                     startActivity(intent);
                 }
             }
@@ -378,4 +387,8 @@ public class MainActivity extends AppCompatActivity {
         public TextView deviceName;
         public TextView deviceAddress;
     }
+
+
+
+
 }
