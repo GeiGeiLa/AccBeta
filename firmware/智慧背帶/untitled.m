@@ -20,14 +20,6 @@ Z_vect3 = data3.Var4 * 4;
 Z_vect1 = Z_vect1(1:750);
 Z_vect2 = Z_vect2(1:750);
 Z_vect3 = Z_vect3(1:375);
-smoothed = Z_vect2;
-
-for i = 1:750:5
-    temp = smoothed(i);
-    for j = 0:5
-        smoothed(i) = temp + smoothed(i+j);
-    end
-end
     
 
 % t = "";
@@ -67,11 +59,16 @@ lp = designfilt('lowpassfir', ...
          'CutoffFrequency',0.8, ...
          'SampleRate',25);
 %  fvtool(lp);
-y = filter(lp, Z_vect2);
+current = Z_vect1;
+
+y = filter(lp, current);
+y = y(26:end);
+std(y)
+csvwrite("../firmware_test/smoothed.csv",y);
 
 figure(2)
 subplot(211);
-plot(Z_vect2);
+plot(current);
 title("Z axis raw data (25Hz)")
 ylabel("mg")
 xlabel('point')
@@ -88,11 +85,7 @@ IndMin = find(diff(sign(diff(y)))>0)+1;
 hold on
 plot(IndMax, y(IndMax(:)), 'o');
 
-plot(smoothed);
-title('smoothed by 5');
-ylabel("mg");
-xlabel('point');
-subplot(213)
+
 %what is this for?
 % plot(IndMin, y(IndMin(:)), 'x', 'color', 'black');
 

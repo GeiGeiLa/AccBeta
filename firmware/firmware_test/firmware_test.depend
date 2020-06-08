@@ -22,3 +22,27 @@
 	<stdbool.h>
 	<math.h>
 
+1591522375 source:d:\acc\firmware\read_file.c
+	"read_file.h"
+	<assert.h>
+	<stdbool.h>
+	<math.h>
+
+1591521898 d:\acc\firmware\read_file.h
+	<stdbool.h>
+	"headers.h"
+
+1591035812 d:\acc\firmware\headers.h
+	<stdio.h>
+	<string.h>
+	<stdlib.h>
+	<stdbool.h>
+
+1591523050 source:d:\acc\firmware\test.c
+	<stdio.h>
+	<string.h>
+	<assert.h>
+	<math.h>
+	"headers.h"
+	"read_file.h"
+

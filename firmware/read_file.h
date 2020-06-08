@@ -10,6 +10,8 @@ extern const float DECLINE_BEFORE_FALL_THRES_LOW;
 extern const int WRITE_SIZE;
 extern const int SAMPLE_FREQ;
 #define MAX_CHUNK_SIZE 50
+#define BUF_SIZE 55
+
 // Struct definitions
 struct _xyz
 {
@@ -34,6 +36,9 @@ struct _chunk_acc
     unsigned char current_size;
     unsigned char last_index_ref;
 };
+
+enum breath_normal_cmp{TOOFEW = -1, OK = 0, TOOMANY = 1, ERROR = -2};
+
 typedef struct _chunk_acc Chunk;
 /**
  * Create and initialize unsigned char properties
@@ -73,6 +78,7 @@ int send_notification(const char* message);
  * ACC is steadily placed.
  * return: object with biases for each axis
  */
+enum diffcode {POS = 1, ZERO = 0, NEG = -1};
 
 struct _cur_stat
 {
@@ -101,5 +107,13 @@ void generate_vector_sum_(Chunk* chunk, XYZAxis* offsets);
 void generate_result(Chunk* current, bool use_verbose);
 
 void verbose_result(Chunk* unsmoothed, Chunk* smoothed);
+
+size_t get_breath_times(float results[], size_t size, float difference);
+
+float get_std(float results[], size_t size);
+
+int breath_status(size_t times, float stdvar, size_t uplim, size_t downlim, float stdlim);
+
+
 
 #endif

@@ -19,7 +19,7 @@ Acc_values create_acc_values()
     return acc;
 }
 
-// è¦æƒ³è¾¦æ³•åˆ¤æ–·æ˜¯é„­å¾ˆå¤§ç—•æ˜¯è² å¾ˆå¤§
+// ­n·Q¿ìªk§PÂ_¬O¾G«Ü¤j²ª¬O­t«Ü¤j
 Chunk* new_chunk(const unsigned char chunk_size)
 {
     assert(chunk_size <= MAX_CHUNK_SIZE);
@@ -28,7 +28,7 @@ Chunk* new_chunk(const unsigned char chunk_size)
     ck->current_size = 0;
     ck->last_index_ref = 0;
     for(int i = 0; i < chunk_size; i++)
-    {
+    {\
         ck->isValid[i] = false;
     }
     return ck;
@@ -70,7 +70,7 @@ int num_falls(Chunk* chunk, float thresh_hi, float thresh_lo, int interval, cons
     static int two_down_logger = 0;
     static bool threlo = false;
     static unsigned char cd = 0;
-    // æœ‰ä¸Šå€‹chunkè¶…å‡ºå€¼
+    // ¦³¤W­Óchunk¶W¥X­È
     if(peak_left_down != NONE || two_down_logger > 0)
     {
         peak_left_down = -1*(chunk->size_limit-1-peak_left_down);
@@ -79,28 +79,28 @@ int num_falls(Chunk* chunk, float thresh_hi, float thresh_lo, int interval, cons
     {
         // >= !!!!
         threlo = chunk->accs[frame].result >= thresh_lo;
-        // é”åˆ°ä¸Šé™ && éå»æ²’æ‰¾åˆ°å·¦è…°é
+        // ¹F¨ì¤W­­ && ¹L¥h¨S§ä¨ì¥ª¸y¹L
         if(threlo && peak_left_down == NONE)
         {
             peak_left_down = frame;
             two_down_logger = 0;
-        } // if è¶…å‡ºä¸Šé™ Ë™& æ²’æœ‰å·¦è…°
-        // å·²ç¶“é”åˆ°ä¸Šç·šä¸¦ä¸”åœ¨è©¦è‘—å°‹æ‰¾å³è…°
+        } // if ¶W¥X¤W­­ £»& ¨S¦³¥ª¸y
+        // ¤w¸g¹F¨ì¤W½u¨Ã¥B¦b¸ÕµÛ´M§ä¥k¸y
         else if(threlo && peak_left_down != NONE)
         {
-            // ç´€éŒ„å…±é€£çºŒå¹¾å€‹frameç¢°åˆ°ä¸Šé™
+            // ¬ö¿ı¦@³sÄò´X­Óframe¸I¨ì¤W­­
             two_down_logger++;
         }
-        // å·²ç¶“æ‰¾åˆ°å·¦è…°è€Œä¸”å‡ºç¾å³è…°
+        // ¤w¸g§ä¨ì¥ª¸y¦Ó¥B¥X²{¥k¸y
         else if(peak_left_down != NONE && !threlo)
         {
             peak_right_down = frame;
         }
-        // é—œéµ
-        // å·²ç¶“æ‰¾åˆ°å·¦å³è…°
+        // ÃöÁä
+        // ¤w¸g§ä¨ì¥ª¥k¸y
         if(peak_left_down != NONE && peak_right_down != NONE)
         {
-            // å€é–“å¤ å°
+            // °Ï¶¡°÷¤p
             if(peak_right_down - peak_left_down <= interval && cd <= 0)
             {
                 if(peak_left_down >= 0)
@@ -127,7 +127,7 @@ int num_falls(Chunk* chunk, float thresh_hi, float thresh_lo, int interval, cons
             peak_right_down = NONE;
         }
         if(cd -1 >= 0) cd--;
-    } // for è¿´åœˆ
+    } // for °j°é
     chunk_serial++;
     return return_num_falls;
 }
@@ -153,7 +153,7 @@ XYZAxis find_offset(Chunk* chunk)
 
 }
 // unused
-// æ‰£æ‰ offset ä¾†æ­¸é›¶
+// ¦©±¼ offset ¨ÓÂk¹s
 void fix_chunk_values_old(Chunk* current, XYZAxis* offsets_xyz)
 {
     float* xptr, *yptr, *zptr;
@@ -205,17 +205,16 @@ void generate_result(Chunk* current, bool use_verbose)
         z = current->accs[i].xyz_axis.z;
         current->accs[i].result = (float)sqrt(x*x+y*y+z*z);
         res = current->accs[i].result;
-        fprintf(verbose, "%.8f\n",res);
     }
 }
-// ç”¨ adjacent value smooth algo
+// ¥Î adjacent value smooth algo
 void smooth_chunk(Chunk* current, const int smooth_window_size)
 {
     float smooth_win = (float)smooth_window_size;
     assert(smooth_window_size >= 0);
     assert(smooth_window_size <= current->current_size);
     float sumX, sumY, sumZ;
-    // window æœƒåˆ‡å‡ºå¹¾å€‹ block
+    // window ·|¤Á¥X´X­Ó block
     int smooth_times = current->current_size / smooth_window_size ;
     int last_smooth_times = current->current_size % smooth_window_size;
     int divisor = 0;
@@ -282,3 +281,94 @@ void generate_vector_sum_(Chunk* chunk, XYZAxis* offset)
         chunk->accs[i].result = x + y + z;
     }
 }
+
+float get_std(float results[], size_t size)
+{
+    float average = 0.0f;
+    float diffsum = 0.0f;
+    for(int i = 0; i < size; i++)
+    {
+        average += results[i];
+    }
+    average /= size;
+    for(int i = 0; i < size; i++)
+    {
+        diffsum += pow(results[i]-average,2);
+    }
+    diffsum /= size;
+    return sqrt(diffsum);
+}
+size_t get_breath_times(float results[], size_t size, float difference)
+{
+    int times = 0;
+    float prev, mid, next;
+    bool firstTime = true;
+    bool secondTime = false;
+    const float DUMMY = -1.0f;
+    int count = 0;
+    float peakVal = DUMMY;
+    float troughVal = DUMMY;
+    int diff = 0;
+    float current;
+    for(int i = 0; i < size; i++)
+    {
+        if(i == 0)
+        {
+            troughVal = results[0];
+        }
+        else
+        {
+            if(count == 0)
+            {
+                count = 1;
+                continue;
+            }
+            if(results[count -1] < results[count])
+            {
+                if(diff == NEG)
+                {
+                    troughVal = results[count];
+                }
+                diff = POS;
+            }
+            else if(results[count -1] > results[count])
+            {
+                if(diff == POS)
+                {
+                    peakVal = results[count];
+                }
+                diff = NEG;
+            }
+            else
+            {
+                diff = ZERO;
+            }
+            if(peakVal != DUMMY && troughVal != DUMMY)
+            {
+                if(peakVal - troughVal >= difference)
+                {
+                    times++;
+                }
+            }
+        }
+        count++;
+    }
+    return times;
+}
+int breath_status(size_t times, float stdvar, size_t uplim, size_t downlim, float stdlim)
+{
+    if(stdvar < stdlim)
+    {
+        puts("little");
+        return TOOFEW;
+    }
+    if(times < downlim)
+    {
+        puts("down lim");
+        return TOOFEW;
+    }
+    if(times > uplim && stdvar > stdlim) return TOOMANY;
+    if(times <= uplim && times >= downlim && stdvar) return OK;
+    return ERROR;
+}
+
